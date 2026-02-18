@@ -1,234 +1,302 @@
 <!doctype html>
-<html lang="ko">
+<html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Love Log | 성향 기반 매칭 + 로그라이크 Love Run</title>
+  <title>Team Heart Log</title>
   <style>
-    :root{
-      --bg:#0b0f19;
-      --panel:#121a2a;
-      --panel2:#0f1626;
-      --line:#24314d;
-      --text:#e6e8ee;
-      --muted:#b9c0d4;
-      --muted2:#8b93aa;
-      --accent:#7aa7ff;
-      --accent2:#a78bfa;
-      --good:#34d399;
-      --warn:#fbbf24;
-      --bad:#fb7185;
-      --radius:18px;
+    :root {
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --panel2: #f7f8fb;
+      --line: #e6e8ef;
+      --text: #111827;
+      --muted: #4b5563;
+      --muted2: #6b7280;
+      --accent: #4f46e5;
+      --accent2: #9333ea;
+      --radius: 18px;
     }
-    *{ box-sizing:border-box; }
-    body{
-      margin:0;
-      background: radial-gradient(1200px 600px at 20% 0%, rgba(122,167,255,0.18), transparent 60%),
-                  radial-gradient(900px 600px at 80% 20%, rgba(167,139,250,0.12), transparent 60%),
-                  var(--bg);
-      color:var(--text);
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Apple SD Gothic Neo, "Noto Sans KR", sans-serif;
+
+    * {
+      box-sizing: border-box;
     }
-    .wrap{
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(900px 500px at 15% 0%, rgba(79, 70, 229, 0.12), transparent 60%),
+        radial-gradient(800px 500px at 85% 20%, rgba(147, 51, 234, 0.10), transparent 60%),
+        var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    }
+
+    .wrap {
       max-width: 980px;
       margin: 0 auto;
       padding: 56px 18px 80px;
     }
-    .hero{
+
+    .hero {
       padding: 28px 22px;
       border: 1px solid var(--line);
       border-radius: var(--radius);
-      background: linear-gradient(180deg, rgba(18,26,42,0.92), rgba(15,22,38,0.92));
-      box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(247, 248, 251, 0.95));
+      box-shadow: 0 12px 35px rgba(17, 24, 39, 0.08);
     }
-    h1{
-      font-size: 40px;
-      margin: 0 0 8px;
-      letter-spacing: -0.5px;
+
+    h1 {
+      font-size: 42px;
+      margin: 0 0 10px;
+      letter-spacing: -0.7px;
     }
-    .subtitle{
+
+    .subtitle {
       color: var(--muted);
       line-height: 1.6;
       font-size: 16px;
       margin: 0 0 18px;
     }
-    .badge{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
       padding: 7px 12px;
       border-radius: 999px;
-      background: rgba(122,167,255,0.12);
-      border: 1px solid rgba(122,167,255,0.25);
+      background: rgba(79, 70, 229, 0.08);
+      border: 1px solid rgba(79, 70, 229, 0.18);
       color: var(--muted);
       font-size: 13px;
       margin: 0 10px 10px 0;
     }
-    .btns{ margin-top: 14px; display:flex; flex-wrap:wrap; gap:10px; }
-    .btn{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:10px;
+
+    .btns {
+      margin-top: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
       padding: 11px 14px;
       border-radius: 14px;
-      text-decoration:none;
+      text-decoration: none;
       border: 1px solid var(--line);
-      background: rgba(31,59,119,0.55);
-      color: #fff;
-      font-weight: 600;
+      background: rgba(79, 70, 229, 0.10);
+      color: #111827;
+      font-weight: 700;
       transition: transform 0.08s ease, background 0.15s ease;
     }
-    .btn:hover{ transform: translateY(-1px); background: rgba(31,59,119,0.72); }
-    .btn.secondary{
-      background: rgba(18,26,42,0.7);
-      color: var(--muted);
+
+    .btn:hover {
+      transform: translateY(-1px);
+      background: rgba(79, 70, 229, 0.16);
     }
-    .grid{
-      display:grid;
+
+    .btn.secondary {
+      background: rgba(17, 24, 39, 0.03);
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .grid {
+      display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 16px;
       margin-top: 18px;
     }
-    @media (max-width: 860px){
-      .grid{ grid-template-columns: 1fr; }
-      h1{ font-size: 34px; }
+
+    @media (max-width: 860px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 34px;
+      }
     }
-    .card{
-      background: rgba(18,26,42,0.82);
+
+    .card {
+      background: rgba(255, 255, 255, 0.92);
       border: 1px solid var(--line);
       border-radius: var(--radius);
       padding: 18px 18px;
+      box-shadow: 0 8px 24px rgba(17, 24, 39, 0.05);
     }
-    .card h2{
-      margin:0 0 10px;
+
+    .card h2 {
+      margin: 0 0 10px;
       font-size: 18px;
       letter-spacing: -0.2px;
     }
-    .card p, .card li{
+
+    .card p,
+    .card li {
       color: var(--muted);
       line-height: 1.65;
       font-size: 14.5px;
     }
-    ul{ margin: 10px 0 0 18px; padding:0; }
-    .tag{
-      display:inline-block;
+
+    ul {
+      margin: 10px 0 0 18px;
+      padding: 0;
+    }
+
+    .tag {
+      display: inline-block;
       padding: 6px 10px;
       border-radius: 999px;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(42,58,92,1);
+      background: rgba(17, 24, 39, 0.03);
+      border: 1px solid rgba(230, 232, 239, 1);
       margin: 6px 6px 0 0;
       font-size: 13px;
       color: var(--muted);
     }
-    .kpi{
-      display:flex;
-      gap:12px;
-      flex-wrap:wrap;
+
+    .kpi {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
       margin-top: 10px;
     }
-    .pill{
+
+    .pill {
       padding: 10px 12px;
       border-radius: 16px;
       border: 1px solid var(--line);
-      background: rgba(0,0,0,0.18);
+      background: rgba(247, 248, 251, 0.9);
       min-width: 170px;
     }
-    .pill .label{ color: var(--muted2); font-size: 12px; margin-bottom: 4px; }
-    .pill .value{ font-size: 16px; font-weight: 700; }
-    .muted{ color: var(--muted2); }
-    .footer{
+
+    .pill .label {
+      color: var(--muted2);
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+
+    .pill .value {
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .muted {
+      color: var(--muted2);
+    }
+
+    .footer {
       margin-top: 28px;
       padding-top: 18px;
-      border-top: 1px solid rgba(36,49,77,0.7);
-      color: rgba(185,192,212,0.75);
+      border-top: 1px solid rgba(230, 232, 239, 0.9);
+      color: rgba(75, 85, 99, 0.95);
       font-size: 13px;
       line-height: 1.6;
     }
-    .mono{
+
+    .mono {
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
       font-size: 13px;
-      color: rgba(230,232,238,0.9);
+      color: rgba(17, 24, 39, 0.9);
     }
-    .small{ font-size: 13px; }
+
+    .people {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .person {
+      padding: 10px 12px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.85);
+      min-width: 220px;
+    }
+
+    .person .name {
+      font-weight: 800;
+    }
+
+    .person .role {
+      font-size: 13px;
+      color: var(--muted2);
+      margin-top: 3px;
+    }
   </style>
 </head>
+
 <body>
   <div class="wrap">
 
-    <!-- HERO -->
     <div class="hero">
-      <div class="badge">🎯 성향 기반 매칭 + 관계 가속 장치</div>
-      <div class="badge">🎮 로그라이크 Love Run (4~5분)</div>
-      <div class="badge">🔒 안전/신뢰 중심 설계</div>
+      <div class="badge">🎯 Personality-based matching</div>
+      <div class="badge">🎮 Roguelike Love Run (4–5 min)</div>
+      <div class="badge">🔒 Safety-first design</div>
 
-      <h1>Love Log</h1>
+      <h1>Team Heart Log</h1>
       <p class="subtitle">
-        Love Log는 단순 연애 게임이 아니라,<br/>
-        <b>성향 기반 매칭(Big Five)</b>과 <b>대화 중심 UX</b>를 결합한 실전 데이팅 플랫폼 컨셉 프로젝트입니다.
+        A prototype project that combines <b>behavior-based personality inference</b> and
+        <b>conversation-first UX</b> to accelerate meaningful connections.
       </p>
 
       <div class="btns">
-        <!-- TODO: 링크 수정 -->
-        <a class="btn" href="https://github.com/jejuminji/rouge-like-app-heart_log" target="_blank" rel="noreferrer">💾 GitHub Repo</a>
-        <a class="btn secondary" href="#" target="_blank" rel="noreferrer">🎬 데모 영상(추가 예정)</a>
-        <a class="btn secondary" href="#" target="_blank" rel="noreferrer">🧠 설계 문서(추가 예정)</a>
+        <!-- TODO: replace links -->
+        <a class="btn" href="https://github.com/jejuminji/rouge-like-app-heart_log" target="_blank" rel="noreferrer">💾
+          GitHub Repo</a>
+        <a class="btn secondary" href="#" target="_blank" rel="noreferrer">🎬 Demo (coming soon)</a>
+        <a class="btn secondary" href="#" target="_blank" rel="noreferrer">📄 Design doc (coming soon)</a>
       </div>
 
       <div class="kpi">
         <div class="pill">
-          <div class="label">핵심 성향 모델</div>
-          <div class="value">행동 10축 + Big Five</div>
+          <div class="label">Trait model</div>
+          <div class="value">10 behavior + Big Five</div>
         </div>
         <div class="pill">
-          <div class="label">첫 대화 UX</div>
-          <div class="value">3턴 가이드형 대화</div>
+          <div class="label">Conversation UX</div>
+          <div class="value">Guided 3-turn chat</div>
         </div>
         <div class="pill">
-          <div class="label">매칭 구조</div>
-          <div class="value">4-step 점수 합성</div>
+          <div class="label">Matching</div>
+          <div class="value">4-step scoring</div>
         </div>
       </div>
     </div>
 
-    <!-- SECTION GRID -->
     <div class="grid">
 
-      <!-- FLOW -->
       <div class="card">
-        <h2>🧭 전체 사용자 플로우</h2>
+        <h2>🧭 User flow</h2>
         <p class="mono">
-          Love Run (4~5분)<br/>
-          → 행동 10축 계산<br/>
-          → Big Five 추론<br/>
-          → 연애 유형 카드 생성<br/>
-          → 유형 + Big Five 기반 매칭<br/>
-          → 가이드형 첫 대화 (3턴)<br/>
-          → 자유 DM 해금<br/>
-          → (선택) 함께 미니게임 / 대화 지속
-        </p>
-        <p class="small muted">
-          “게임은 옵션, 대화는 본질” 구조를 유지합니다.
+          Love Run (4–5 min)<br />
+          → 10-axis behavior scoring<br />
+          → Big Five inference<br />
+          → Dating type card<br />
+          → Matching (type + similarity)<br />
+          → Guided first chat (3 turns)<br />
+          → Free DM unlock<br />
+          → Optional minigame
         </p>
       </div>
 
-      <!-- IDENTITY -->
       <div class="card">
-        <h2>🧠 서비스 정체성</h2>
+        <h2>🧠 Core idea</h2>
         <ul>
-          <li>게임 앱이 아니라 <b>성향 기반 실전 매칭 플랫폼</b></li>
-          <li>심리테스트가 아니라 <b>행동 기반 성향 추론 시스템</b></li>
-          <li>핵심은 “재미 + 데이터 수집 + 관계 가속”</li>
+          <li>Not a dating game — a <b>matching platform concept</b></li>
+          <li>Roguelike run is for <b>fun + data collection</b></li>
+          <li>Conversation is the main UX, minigames are optional</li>
         </ul>
-        <p class="small muted">
-          로그라이크 런은 차별화 요소, Big Five는 알고리즘 핵심, 대화는 UX 본질입니다.
-        </p>
       </div>
 
-      <!-- AXES -->
       <div class="card">
-        <h2>📊 행동 10축 (Run 기반)</h2>
-        <p>짧은 런 플레이에서 유저의 반응을 수집하여, 단기 행동 성향을 추정합니다.</p>
+        <h2>📊 Behavior axes (10)</h2>
         <div>
           <span class="tag">cooperation</span>
           <span class="tag">leadership</span>
@@ -243,117 +311,77 @@
         </div>
       </div>
 
-      <!-- BIG FIVE -->
       <div class="card">
-        <h2>🧬 Big Five (장기 안정성)</h2>
-        <p>Big Five는 누적 기반으로 안정화하며, 장기 관계 적합성 판단의 핵심 지표로 사용합니다.</p>
+        <h2>🧬 Big Five</h2>
         <div>
-          <span class="tag">Openness</span>
-          <span class="tag">Conscientiousness</span>
-          <span class="tag">Extraversion</span>
-          <span class="tag">Agreeableness</span>
-          <span class="tag">Neuroticism</span>
+          <span class="tag">openness</span>
+          <span class="tag">conscientiousness</span>
+          <span class="tag">extraversion</span>
+          <span class="tag">agreeableness</span>
+          <span class="tag">neuroticism</span>
         </div>
-        <p class="small muted">
-          런 결과는 과신하지 않고, 누적 데이터와 혼합하여 안정성을 확보합니다.
+        <p class="muted small">
+          Big Five is stabilized via cumulative aggregation.
         </p>
       </div>
 
-      <!-- MATCHING -->
       <div class="card">
-        <h2>🎯 매칭 알고리즘 (4-Step)</h2>
-        <ol style="margin:10px 0 0 18px; color: var(--muted); line-height:1.65;">
-          <li>유형 기반 1차 필터 (동일/보완/충돌 제외)</li>
-          <li>Big Five 궁합 점수 (가중 유사도)</li>
-          <li>행동 벡터 유사도 (cosine)</li>
-          <li>최종 점수 합성 (가중 합 + 다양성 보정)</li>
-        </ol>
-        <p class="mono" style="margin-top:12px;">
-          match_score =<br/>
-          0.4 * behavior_score +<br/>
-          0.3 * big5_score +<br/>
-          0.2 * cluster_score +<br/>
+        <h2>🎯 Matching formula</h2>
+        <p class="mono">
+          match_score =<br />
+          0.4 * behavior_score +<br />
+          0.3 * big5_score +<br />
+          0.2 * cluster_score +<br />
           0.1 * activity_score
         </p>
       </div>
 
-      <!-- CONVERSATION -->
       <div class="card">
-        <h2>💬 대화 중심 UX</h2>
+        <h2>🔒 Safety</h2>
         <ul>
-          <li>첫 대화는 <b>3턴 가이드형 템플릿</b>으로 어색함 제거</li>
-          <li>주제 카드 + 선택형 답변으로 진입 장벽 낮춤</li>
-          <li>이후 자유 DM 해금</li>
+          <li>DM filtering</li>
+          <li>Report / block (1 tap)</li>
+          <li>Abnormal behavior detection</li>
+          <li>Regeneration loop for unsafe content</li>
         </ul>
-        <p class="small muted">
-          안전성과 리스크를 줄이기 위해, “초반 대화 UX”를 최우선으로 설계합니다.
-        </p>
       </div>
 
-      <!-- MINIGAME -->
       <div class="card">
-        <h2>🎮 미니게임은 ‘선택 기능’</h2>
-        <p>
-          미니게임은 매칭 점수를 뒤집지 않습니다.<br/>
-          대신 궁합 신뢰도(<b>confidence_level</b>)를 올리는 “관계 가속 장치” 역할만 합니다.
-        </p>
-        <div class="kpi">
-          <div class="pill">
-            <div class="label">역할</div>
-            <div class="value">아이스브레이킹</div>
+        <h2>🤝 Collaborators</h2>
+        <div class="people">
+          <div class="person">
+            <div class="name">Junyoung Ryu</div>
+            <div class="role">Collaborator</div>
           </div>
-          <div class="pill">
-            <div class="label">효과</div>
-            <div class="value">궁합 검증 가속</div>
+          <div class="person">
+            <div class="name">Jiho Kang</div>
+            <div class="role">Collaborator</div>
           </div>
-          <div class="pill">
-            <div class="label">원칙</div>
-            <div class="value">대화 중심 유지</div>
+          <div class="person">
+            <div class="name">Minji Song</div>
+            <div class="role">Collaborator</div>
           </div>
         </div>
       </div>
 
-      <!-- SAFETY -->
       <div class="card">
-        <h2>🔒 안전 / 신뢰 설계</h2>
+        <h2>🧪 Prototype status</h2>
         <ul>
-          <li>가이드형 대화로 초기 리스크 감소</li>
-          <li>DM 필터링 + 신고/차단 1탭 제공</li>
-          <li>이상 행동 탐지 시스템 구축</li>
-          <li>금칙어 정책 + 재생성 루프 설계</li>
+          <li>Gradio playable Love Run</li>
+          <li>GPT-based scenario + reaction generation</li>
+          <li>Trait vector accumulation + type classification</li>
+          <li>Seed-profile matching (top-3)</li>
         </ul>
-        <p class="small muted">
-          “재미”보다 “안전”이 우선인 구조를 목표로 합니다.
-        </p>
-      </div>
-
-      <!-- AI TASKS -->
-      <div class="card">
-        <h2>🧩 AI 모듈 구성 (업무 분장)</h2>
-        <p>Love Log는 아래 3개 AI 모듈로 분리 설계되어 있습니다.</p>
-        <ul>
-          <li><b>시나리오 이벤트 생성</b> (스키마 + 프롬프트 + JSON Structured Output)</li>
-          <li><b>Traits/매칭 엔진</b> (15축 누적 + 유형 카드 + 코사인 유사도)</li>
-          <li><b>대화/게임/안전</b> (상태 머신 + 미니게임 + 안전 시스템)</li>
-        </ul>
-        <p class="small muted">
-          이 구조는 “확장 가능한 팀 개발”을 염두에 둔 설계입니다.
-        </p>
       </div>
 
     </div>
 
-    <!-- FOOTER -->
     <div class="footer">
-      <div>
-        <b>Contact</b><br/>
-        <span class="muted">원하면 여기에 이메일/트위터/노션 링크 넣으면 됨.</span>
-      </div>
-      <div style="margin-top:14px;">
-        made with 🦊 by mingming — Love Log project page
-      </div>
+      <b>Team Heart Log</b><br />
+      Prototype page — built for sharing & demos.
     </div>
 
   </div>
 </body>
+
 </html>
