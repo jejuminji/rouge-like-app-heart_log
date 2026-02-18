@@ -1,387 +1,488 @@
-<!doctype html>
-<html lang="en">
+"""
+Heart Log — Gradio Playable Love Run (Refactored)
 
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Team Heart Log</title>
-  <style>
-    :root {
-      --bg: #ffffff;
-      --panel: #ffffff;
-      --panel2: #f7f8fb;
-      --line: #e6e8ef;
-      --text: #111827;
-      --muted: #4b5563;
-      --muted2: #6b7280;
-      --accent: #4f46e5;
-      --accent2: #9333ea;
-      --radius: 18px;
-    }
+- 3-phase per event: emotion_tag -> turn1 -> turn2
+- 15-axis trait accumulation (10 behavior + Big Five)
+- GPT generates situation + choices + reaction
+- Logs saved as JSON in ./logs
 
-    * {
-      box-sizing: border-box;
-    }
+Requirements:
+- pip install gradio python-dotenv openai
+- .env:
+OPENAI_API_KEY=...
+OPENAI_MODEL=gpt-4o-mini
+"""
 
-    body {
-      margin: 0;
-      background:
-        radial-gradient(900px 500px at 15% 0%, rgba(79, 70, 229, 0.12), transparent 60%),
-        radial-gradient(800px 500px at 85% 20%, rgba(147, 51, 234, 0.10), transparent 60%),
-        var(--bg);
-      color: var(--text);
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
-    }
+import json
+import os
+import random
+from datetime import datetime
 
-    .wrap {
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 56px 18px 80px;
-    }
+import gradio as gr
+from dotenv import load_dotenv
+from openai import OpenAI
 
-    .hero {
-      padding: 28px 22px;
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(247, 248, 251, 0.95));
-      box-shadow: 0 12px 35px rgba(17, 24, 39, 0.08);
-    }
+from scenarios import (
+SCENARIOS,
+BOSS_EVENTS,
+TONE_DISTRIBUTION,
+DATING_TYPES,
+)
+from gpt_engine import generate_event, generate_reaction
+from trait_engine import (
+empty_vector,
+apply_effects,
+classify_type,
+vector_to_profile,
+format_profile_md,
+format_profile_json,
+find_matches,
+)
 
-    h1 {
-      font-size: 42px;
-      margin: 0 0 10px;
-      letter-spacing: -0.7px;
-    }
+load_dotenv()
 
-    .subtitle {
-      color: var(--muted);
-      line-height: 1.6;
-      font-size: 16px;
-      margin: 0 0 18px;
-    }
+TONE_EMOJI = {"positive": "💗", "negative": "💔", "wildcard": "⚡"}
 
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 7px 12px;
-      border-radius: 999px;
-      background: rgba(79, 70, 229, 0.08);
-      border: 1px solid rgba(79, 70, 229, 0.18);
-      color: var(--muted);
-      font-size: 13px;
-      margin: 0 10px 10px 0;
-    }
 
-    .btns {
-      margin-top: 14px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
+# ─────────────────────────────────────────────────────────────
+# State
+# ─────────────────────────────────────────────────────────────
 
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      padding: 11px 14px;
-      border-radius: 14px;
-      text-decoration: none;
-      border: 1px solid var(--line);
-      background: rgba(79, 70, 229, 0.10);
-      color: #111827;
-      font-weight: 700;
-      transition: transform 0.08s ease, background 0.15s ease;
-    }
+def new_state():
+return {
+"phase": "idle",
+"events": [],
+"event_idx": 0,
 
-    .btn:hover {
-      transform: translateY(-1px);
-      background: rgba(79, 70, 229, 0.16);
-    }
+"trait_vector": empty_vector(),
+"choice_history": [],
 
-    .btn.secondary {
-      background: rgba(17, 24, 39, 0.03);
-      color: var(--muted);
-      font-weight: 600;
-    }
+"event_logs": [], # finalized event logs
+"current_event_log": {}, # current event log draft
 
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-top: 18px;
-    }
+"current_event_data": {}, # generate_event output
+"current_reaction_data": {}, # generate_reaction output
 
-    @media (max-width: 860px) {
-      .grid {
-        grid-template-columns: 1fr;
-      }
+"log_md": "",
+}
 
-      h1 {
-        font-size: 34px;
-      }
-    }
 
-    .card {
-      background: rgba(255, 255, 255, 0.92);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 18px 18px;
-      box-shadow: 0 8px 24px rgba(17, 24, 39, 0.05);
-    }
+# ─────────────────────────────────────────────────────────────
+# Helpers
+# ─────────────────────────────────────────────────────────────
 
-    .card h2 {
-      margin: 0 0 10px;
-      font-size: 18px;
-      letter-spacing: -0.2px;
-    }
+def get_client():
+api_key = os.getenv("OPENAI_API_KEY", "").strip()
+if not api_key:
+return None
+return OpenAI(api_key=api_key)
 
-    .card p,
-    .card li {
-      color: var(--muted);
-      line-height: 1.65;
-      font-size: 14.5px;
-    }
 
-    ul {
-      margin: 10px 0 0 18px;
-      padding: 0;
-    }
+def get_model():
+return os.getenv("OPENAI_MODEL", "gpt-4o-mini").strip() or "gpt-4o-mini"
 
-    .tag {
-      display: inline-block;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: rgba(17, 24, 39, 0.03);
-      border: 1px solid rgba(230, 232, 239, 1);
-      margin: 6px 6px 0 0;
-      font-size: 13px;
-      color: var(--muted);
-    }
 
-    .kpi {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 10px;
-    }
+def log_append(state, text: str):
+state["log_md"] += text + "\n"
+return state["log_md"]
 
-    .pill {
-      padding: 10px 12px;
-      border-radius: 16px;
-      border: 1px solid var(--line);
-      background: rgba(247, 248, 251, 0.9);
-      min-width: 170px;
-    }
 
-    .pill .label {
-      color: var(--muted2);
-      font-size: 12px;
-      margin-bottom: 4px;
-    }
+def trait_snapshot_json(vector, label=""):
+best_type, _ = classify_type(vector)
+profile = vector_to_profile(vector, best_type)
 
-    .pill .value {
-      font-size: 16px;
-      font-weight: 800;
-    }
+prefix = f"**{label}**\n" if label else ""
+return f"{prefix}```json\n{json.dumps(profile, ensure_ascii=False, indent=2)}\n```\n"
 
-    .muted {
-      color: var(--muted2);
-    }
 
-    .footer {
-      margin-top: 28px;
-      padding-top: 18px;
-      border-top: 1px solid rgba(230, 232, 239, 0.9);
-      color: rgba(75, 85, 99, 0.95);
-      font-size: 13px;
-      line-height: 1.6;
-    }
+def build_events(boss_chance=0.05):
+events = []
 
-    .mono {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      font-size: 13px;
-      color: rgba(17, 24, 39, 0.9);
-    }
+for forced_tone in TONE_DISTRIBUTION:
+tone = forced_tone or random.choice(["positive", "negative", "wildcard"])
 
-    .people {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 10px;
-    }
+pool = [s for s in SCENARIOS.values() if s["tone"] == tone]
+used = {e["name"] for e in events}
+pool = [s for s in pool if s["name"] not in used]
 
-    .person {
-      padding: 10px 12px;
-      border-radius: 16px;
-      border: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.85);
-      min-width: 220px;
-    }
+if not pool:
+pool = [s for s in SCENARIOS.values() if s["name"] not in used]
 
-    .person .name {
-      font-weight: 800;
-    }
+events.append(random.choice(pool))
 
-    .person .role {
-      font-size: 13px;
-      color: var(--muted2);
-      margin-top: 3px;
-    }
-  </style>
-</head>
+if random.random() < boss_chance: boss=random.choice(list(BOSS_EVENTS.values())) events.append({**boss, "_is_boss" :
+  True}) return events def save_run_log(state, best_type, type_scores, match_data, profile):
+  log_dir=os.path.join(os.path.dirname(__file__), "logs" ) os.makedirs(log_dir, exist_ok=True)
+  ts=datetime.now().strftime("%Y%m%d_%H%M%S") run_log={ "timestamp" : ts, "profile" : profile, "events" :
+  state["event_logs"], "final_vector" : state["trait_vector"], "type" : best_type, "type_scores" :
+  type_scores, "matches" : match_data, } out_path=os.path.join(log_dir, f"run_{ts}.json") with open(out_path, "w" ,
+  encoding="utf-8" ) as f: json.dump(run_log, f, ensure_ascii=False, indent=2) return out_path def hide_buttons():
+  return ( gr.update(visible=False), gr.update(visible=False), gr.update(visible=False), gr.update(visible=False),
+  gr.update(visible=False), ) # ───────────────────────────────────────────────────────────── # Core loop #
+  ───────────────────────────────────────────────────────────── def on_start(state): client=get_client() if not client:
+  state=new_state()
+  msg=( "## ❌ OPENAI_API_KEY가 없습니다.\n\n" "`.env` 파일에 아래처럼 넣어주세요:\n\n" "```bash\nOPENAI_API_KEY=YOUR_KEY\nOPENAI_MODEL=gpt-4o-mini\n```"
+  ) return ( state, msg, "" , *hide_buttons(), ) state=new_state() state["phase"]="loading_event"
+  state["events"]=build_events() log_append(state, "## 💜 Love Run 시작\n" ) return generate_next_event(state, client) def
+  generate_next_event(state, client): idx=state["event_idx"] events=state["events"] if idx>= len(events):
+  return show_results(state)
 
-<body>
-  <div class="wrap">
+  scenario = events[idx]
+  is_boss = scenario.get("_is_boss", False)
 
-    <div class="hero">
-      <div class="badge">🎯 Personality-based matching</div>
-      <div class="badge">🎮 Roguelike Love Run (4–5 min)</div>
-      <div class="badge">🔒 Safety-first design</div>
+  total = len(events)
+  tone_emoji = TONE_EMOJI.get(scenario["tone"], "")
 
-      <h1>Team Heart Log</h1>
-      <p class="subtitle">
-        A prototype project that combines <b>behavior-based personality inference</b> and
-        <b>conversation-first UX</b> to accelerate meaningful connections.
-      </p>
+  if is_boss:
+  header = f"⚔️ **BOSS** {scenario['name']}"
+  else:
+  header = f"[{idx + 1}/{total}] {tone_emoji} {scenario['name']}"
 
-      <div class="btns">
-        <!-- TODO: replace links -->
-        <a class="btn" href="https://github.com/jejuminji/rouge-like-app-heart_log" target="_blank" rel="noreferrer">💾
-          GitHub Repo</a>
-        <a class="btn secondary" href="#" target="_blank" rel="noreferrer">🎬 Demo (coming soon)</a>
-        <a class="btn secondary" href="#" target="_blank" rel="noreferrer">📄 Design doc (coming soon)</a>
-      </div>
+  log_append(state, f"---\n### {header}\n*{scenario['desc']}*\n")
 
-      <div class="kpi">
-        <div class="pill">
-          <div class="label">Trait model</div>
-          <div class="value">10 behavior + Big Five</div>
-        </div>
-        <div class="pill">
-          <div class="label">Conversation UX</div>
-          <div class="value">Guided 3-turn chat</div>
-        </div>
-        <div class="pill">
-          <div class="label">Matching</div>
-          <div class="value">4-step scoring</div>
-        </div>
-      </div>
-    </div>
+  model = get_model()
+  try:
+  event_data = generate_event(
+  client=client,
+  scenario=scenario,
+  current_traits=state["trait_vector"],
+  prev_choices=state["choice_history"],
+  event_logs=state["event_logs"],
+  model=model,
+  )
+  except Exception as e:
+  log_append(state, f"⚠️ GPT 오류: {e}\n")
+  state["event_idx"] += 1
+  return generate_next_event(state, client)
 
-    <div class="grid">
+  state["current_event_data"] = event_data
+  state["current_event_log"] = {
+  "index": idx + 1,
+  "scenario": scenario["name"],
+  "desc": scenario["desc"],
+  "tone": scenario["tone"],
+  "is_boss": is_boss,
+  }
 
-      <div class="card">
-        <h2>🧭 User flow</h2>
-        <p class="mono">
-          Love Run (4–5 min)<br />
-          → 10-axis behavior scoring<br />
-          → Big Five inference<br />
-          → Dating type card<br />
-          → Matching (type + similarity)<br />
-          → Guided first chat (3 turns)<br />
-          → Free DM unlock<br />
-          → Optional minigame
-        </p>
-      </div>
+  state["phase"] = "emotion_tag"
 
-      <div class="card">
-        <h2>🧠 Core idea</h2>
-        <ul>
-          <li>Not a dating game — a <b>matching platform concept</b></li>
-          <li>Roguelike run is for <b>fun + data collection</b></li>
-          <li>Conversation is the main UX, minigames are optional</li>
-        </ul>
-      </div>
+  emo = event_data.get("emotion_tag", {})
+  options = emo.get("options", [])
 
-      <div class="card">
-        <h2>📊 Behavior axes (10)</h2>
-        <div>
-          <span class="tag">cooperation</span>
-          <span class="tag">leadership</span>
-          <span class="tag">emotional_depth</span>
-          <span class="tag">pace</span>
-          <span class="tag">humor</span>
-          <span class="tag">risk</span>
-          <span class="tag">contact_frequency</span>
-          <span class="tag">affection</span>
-          <span class="tag">jealousy</span>
-          <span class="tag">planning</span>
-        </div>
-      </div>
+  situation = event_data.get("situation", "")
 
-      <div class="card">
-        <h2>🧬 Big Five</h2>
-        <div>
-          <span class="tag">openness</span>
-          <span class="tag">conscientiousness</span>
-          <span class="tag">extraversion</span>
-          <span class="tag">agreeableness</span>
-          <span class="tag">neuroticism</span>
-        </div>
-        <p class="muted small">
-          Big Five is stabilized via cumulative aggregation.
-        </p>
-      </div>
+  game_md = f"### {header}\n\n"
+  game_md += f"> {situation}\n\n"
+  game_md += f"**{emo.get('question', '이 상황에서 당신의 첫 감정은?')}**"
 
-      <div class="card">
-        <h2>🎯 Matching formula</h2>
-        <p class="mono">
-          match_score =<br />
-          0.4 * behavior_score +<br />
-          0.3 * big5_score +<br />
-          0.2 * cluster_score +<br />
-          0.1 * activity_score
-        </p>
-      </div>
+  def opt_label(i, fallback):
+  if i >= len(options):
+  return fallback
+  return f"{options[i].get('emoji','')} {options[i].get('label','')}".strip()
 
-      <div class="card">
-        <h2>🔒 Safety</h2>
-        <ul>
-          <li>DM filtering</li>
-          <li>Report / block (1 tap)</li>
-          <li>Abnormal behavior detection</li>
-          <li>Regeneration loop for unsafe content</li>
-        </ul>
-      </div>
+  return (
+  state,
+  game_md,
+  state["log_md"],
+  gr.update(value=opt_label(0, "A"), visible=True),
+  gr.update(value=opt_label(1, "B"), visible=True),
+  gr.update(value=opt_label(2, "C"), visible=True),
+  gr.update(value="🔄 다시 플레이", visible=False),
+  gr.update(value="💜 Love Run 시작", visible=False),
+  )
 
-      <div class="card">
-        <h2>🤝 Collaborators</h2>
-        <div class="people">
-          <div class="person">
-            <div class="name">Junyoung Ryu</div>
-            <div class="role">Collaborator</div>
-          </div>
-          <div class="person">
-            <div class="name">Jiho Kang</div>
-            <div class="role">Collaborator</div>
-          </div>
-          <div class="person">
-            <div class="name">Minji Song</div>
-            <div class="role">Collaborator</div>
-          </div>
-        </div>
-      </div>
 
-      <div class="card">
-        <h2>🧪 Prototype status</h2>
-        <ul>
-          <li>Gradio playable Love Run</li>
-          <li>GPT-based scenario + reaction generation</li>
-          <li>Trait vector accumulation + type classification</li>
-          <li>Seed-profile matching (top-3)</li>
-        </ul>
-      </div>
+  def on_choice(choice_idx, state):
+  client = get_client()
+  if not client:
+  return state, "API 키가 없습니다.", state["log_md"], *hide_buttons()
 
-    </div>
+  phase = state["phase"]
 
-    <div class="footer">
-      <b>Team Heart Log</b><br />
-      Prototype page — built for sharing & demos.
-    </div>
+  if phase == "emotion_tag":
+  return handle_emotion(choice_idx, state, client)
 
-  </div>
-</body>
+  if phase == "turn1":
+  return handle_turn1(choice_idx, state, client)
 
-</html>
+  if phase == "turn2":
+  return handle_turn2(choice_idx, state, client)
+
+  return state, "알 수 없는 상태입니다.", state["log_md"], *hide_buttons()
+
+
+  def handle_emotion(choice_idx, state, client):
+  emo = state["current_event_data"].get("emotion_tag", {})
+  options = emo.get("options", [])
+
+  if not options:
+  # emotion_tag가 비어있는 경우 안전 처리
+  state["phase"] = "turn1"
+  return show_turn1_ui(state)
+
+  if choice_idx >= len(options):
+  choice_idx = 0
+
+  selected = options[choice_idx]
+
+  apply_effects(state["trait_vector"], selected.get("trait_effect", {}), multiplier=0.5)
+
+  log_append(state, f"감정: {selected.get('emoji','')} {selected.get('label','')}")
+  log_append(state, trait_snapshot_json(state["trait_vector"], "감정 태그 후 프로필"))
+
+  state["current_event_log"]["emotion_tag"] = {
+  "question": emo.get("question", ""),
+  "options": options,
+  "selected": selected,
+  }
+
+  state["phase"] = "turn1"
+  return show_turn1_ui(state)
+
+
+  def show_turn1_ui(state):
+  event_data = state["current_event_data"]
+  choices = event_data.get("choices", [])
+  situation = event_data.get("situation", "")
+
+  scenario = state["events"][state["event_idx"]]
+  tone_emoji = TONE_EMOJI.get(scenario["tone"], "")
+
+  game_md = f"### {tone_emoji} {scenario['name']}\n\n"
+  game_md += f"> {situation}\n\n"
+  game_md += "**어떻게 하시겠습니까?**"
+
+  def ch(i, fallback):
+  if i >= len(choices):
+  return fallback
+  return choices[i].get("text", fallback)
+
+  return (
+  state,
+  game_md,
+  state["log_md"],
+  gr.update(value=f"A. {ch(0,'A')}", visible=True),
+  gr.update(value=f"B. {ch(1,'B')}", visible=True),
+  gr.update(value=f"C. {ch(2,'C')}", visible=True),
+  gr.update(visible=False),
+  gr.update(visible=False),
+  )
+
+
+  def handle_turn1(choice_idx, state, client):
+  choices = state["current_event_data"].get("choices", [])
+  if not choices:
+  state["event_idx"] += 1
+  return generate_next_event(state, client)
+
+  if choice_idx >= len(choices):
+  choice_idx = 0
+
+  selected = choices[choice_idx]
+
+  scenario = state["events"][state["event_idx"]]
+  is_boss = scenario.get("_is_boss", False)
+  multiplier = 2.0 if is_boss else 1.0
+
+  apply_effects(state["trait_vector"], selected.get("trait_effect", {}), multiplier=multiplier)
+  state["choice_history"].append(selected.get("text", ""))
+
+  state["current_event_log"]["turn1"] = {"options": choices, "selected": selected}
+
+  log_append(state, f"**1턴:** {selected.get('text','')}")
+  log_append(state, trait_snapshot_json(state["trait_vector"], "1턴 후 프로필"))
+
+  situation = state["current_event_data"].get("situation", "")
+  model = get_model()
+
+  try:
+  reaction_data = generate_reaction(
+  client=client,
+  scenario=scenario,
+  situation=situation,
+  user_choice=selected,
+  event_logs=state["event_logs"],
+  model=model,
+  )
+  except Exception as e:
+  log_append(state, f"⚠️ GPT 오류: {e}\n")
+  state["event_logs"].append(state["current_event_log"])
+  state["event_idx"] += 1
+  return generate_next_event(state, client)
+
+  state["current_reaction_data"] = reaction_data
+  state["phase"] = "turn2"
+
+  reaction_text = reaction_data.get("reaction", "")
+  choices_2 = reaction_data.get("choices", [])
+
+  state["current_event_log"]["situation"] = situation
+  state["current_event_log"]["reaction"] = reaction_text
+
+  game_md = "### 상황 전개\n\n"
+  game_md += f"💬 *{reaction_text}*\n\n"
+  game_md += "**어떻게 하시겠습니까?**"
+
+  def ch(i, fallback):
+  if i >= len(choices_2):
+  return fallback
+  return choices_2[i].get("text", fallback)
+
+  return (
+  state,
+  game_md,
+  state["log_md"],
+  gr.update(value=f"A. {ch(0,'A')}", visible=True),
+  gr.update(value=f"B. {ch(1,'B')}", visible=True),
+  gr.update(value=f"C. {ch(2,'C')}", visible=True),
+  gr.update(visible=False),
+  gr.update(visible=False),
+  )
+
+
+  def handle_turn2(choice_idx, state, client):
+  choices = state["current_reaction_data"].get("choices", [])
+  if not choices:
+  state["event_logs"].append(state["current_event_log"])
+  state["event_idx"] += 1
+  return generate_next_event(state, client)
+
+  if choice_idx >= len(choices):
+  choice_idx = 0
+
+  selected = choices[choice_idx]
+
+  scenario = state["events"][state["event_idx"]]
+  is_boss = scenario.get("_is_boss", False)
+  multiplier = 2.0 if is_boss else 1.0
+
+  apply_effects(state["trait_vector"], selected.get("trait_effect", {}), multiplier=multiplier)
+  state["choice_history"].append(selected.get("text", ""))
+
+  state["current_event_log"]["turn2"] = {"options": choices, "selected": selected}
+  state["current_event_log"]["trait_snapshot"] = dict(state["trait_vector"])
+
+  state["event_logs"].append(state["current_event_log"])
+  state["event_idx"] += 1
+
+  log_append(state, f"**2턴:** {selected.get('text','')}")
+  log_append(state, trait_snapshot_json(state["trait_vector"], f"이벤트 {state['event_idx']} 완료 프로필"))
+
+  return generate_next_event(state, client)
+
+
+  def show_results(state):
+  best_type, scores = classify_type(state["trait_vector"])
+  dt = DATING_TYPES.get(best_type, {})
+
+  my_profile = vector_to_profile(state["trait_vector"], best_type)
+
+  # matching
+  match_md = ""
+  match_data = []
+  try:
+  matches = find_matches(state["trait_vector"], best_type, top_n=3)
+  for i, m in enumerate(matches, 1):
+  p = m["profile"]
+  mdt = DATING_TYPES.get(m["type"], {})
+  match_md += f"### #{i} 💞 {p['name']} ({p['age']}세, {p['gender']})\n"
+  match_md += f"{mdt.get('emoji','')} {mdt.get('name','')} · {p.get('archetype','')}\n\n"
+  match_md += f"**매칭 적합도 {m['match_score']}%** · 행동 {m['behavior_sim']}% · 성격 {m['big5_sim']}%\n\n---\n"
+
+  match_data.append({
+  "name": p["name"],
+  "age": p["age"],
+  "gender": p["gender"],
+  "archetype": p.get("archetype", ""),
+  "type": m["type"],
+  "match_score": m["match_score"],
+  "behavior_sim": m["behavior_sim"],
+  "big5_sim": m["big5_sim"],
+  })
+  except Exception:
+  match_md = "매칭 데이터를 불러올 수 없습니다."
+
+  game_md = f"# {dt.get('emoji','')} {dt.get('title','')}\n\n"
+  game_md += f"*{dt.get('desc','')}*\n\n---\n\n"
+  game_md += "## 📊 당신의 성향 프로필\n\n"
+  game_md += format_profile_md(my_profile)
+  game_md += f"\n---\n\n### JSON\n```json\n{format_profile_json(my_profile)}\n```"
+  game_md += f"\n---\n\n{match_md}"
+
+  log_append(state, f"\n---\n## 💜 결과: {dt.get('emoji','')} {dt.get('title','')}\n")
+  log_append(state, trait_snapshot_json(state["trait_vector"], "최종 프로필"))
+
+  # save log
+  try:
+  out_path = save_run_log(state, best_type, scores, match_data, my_profile)
+  log_append(state, f"📁 로그 저장: `{out_path}`")
+  except Exception as e:
+  log_append(state, f"⚠️ 로그 저장 실패: {e}")
+
+  state["phase"] = "results"
+
+  return (
+  state,
+  game_md,
+  state["log_md"],
+  gr.update(visible=False),
+  gr.update(visible=False),
+  gr.update(visible=False),
+  gr.update(value="🔄 다시 플레이", visible=True),
+  gr.update(value="💜 Love Run 시작", visible=False),
+  )
+
+
+  # ─────────────────────────────────────────────────────────────
+  # UI
+  # ─────────────────────────────────────────────────────────────
+
+  with gr.Blocks(
+  title="Team Heart Log",
+  theme=gr.themes.Soft(primary_hue="purple"),
+  css="footer {display: none !important} .game-panel {min-height: 420px}",
+  ) as app:
+
+  gr.Markdown(
+  "# 💜 Heart Log\n"
+  "선택이 쌓여 성향이 되고, 성향이 만나 인연이 된다.\n\n"
+  "<span style='color:#9ca3af'>Team Heart Log prototype</span>"
+  )
+
+  state = gr.State(new_state())
+
+  with gr.Row():
+  with gr.Column(scale=3):
+  game_md = gr.Markdown(
+  "## Love Run을 시작하세요\n\n"
+  "가상의 연애 상황을 체험하며 당신의 성향을 발견하세요.\n"
+  "플레이가 끝나면, 당신과 맞는 인연을 찾아드립니다.",
+  elem_classes=["game-panel"],
+  )
+
+  with gr.Row():
+  btn_a = gr.Button("A", visible=False, variant="primary", scale=1)
+  btn_b = gr.Button("B", visible=False, variant="primary", scale=1)
+  btn_c = gr.Button("C", visible=False, variant="primary", scale=1)
+
+  start_btn = gr.Button("💜 Love Run 시작", variant="huggingface", size="lg")
+  restart_btn = gr.Button("🔄 다시 플레이", visible=False, variant="huggingface", size="lg")
+
+  with gr.Column(scale=2):
+  gr.Markdown("### 📜 플레이 로그")
+  log_md = gr.Markdown("*플레이를 시작하면 로그가 여기에 쌓입니다.*")
+
+  outputs = [state, game_md, log_md, btn_a, btn_b, btn_c, restart_btn, start_btn]
+
+  start_btn.click(fn=on_start, inputs=[state], outputs=outputs)
+  restart_btn.click(fn=on_start, inputs=[state], outputs=outputs)
+
+  btn_a.click(fn=lambda s: on_choice(0, s), inputs=[state], outputs=outputs)
+  btn_b.click(fn=lambda s: on_choice(1, s), inputs=[state], outputs=outputs)
+  btn_c.click(fn=lambda s: on_choice(2, s), inputs=[state], outputs=outputs)
+
+  if __name__ == "__main__":
+  # IMPORTANT:
+  # - share=True는 외부 공개 터널을 열기 때문에 기본은 False 권장
+  # - 배포 환경에서 포트/host는 상황에 맞게 설정
+  app.launch()
