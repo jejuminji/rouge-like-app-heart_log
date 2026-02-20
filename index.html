@@ -429,7 +429,7 @@
         <p class="tagline">선택이 쌓여 성향이 되고, 성향이 만나 인연이 된다.</p>
 
         <div id="links">
-            <a href="https://huggingface.co/spaces/mingming2323/rouge-like-heart-log" class="gradient-bg" target="_blank" rel="noreferrer">
+            <a href="https://huggingface.co/spaces/LoveLog/rouge-like-matcing-LOVElog" class="gradient-bg" target="_blank" rel="noreferrer">
                 <span class="icon">🎮</span> Demo
             </a>
             <a href="https://youtu.be/xp0qFkp2zuE" class="gradient-bg" target="_blank" rel="noreferrer">
@@ -465,9 +465,9 @@
     <div id="tldr" class="gradient-bg-soft">
         <div class="label">TL;DR</div>
         <p>
-            설문은 지루하고, 감은 틀린다. 그래서 우리는 <strong>게임</strong>을 만들었다.<br>
-            로그라이크 연애 시뮬레이션을 플레이하면, 선택이 자동으로 <strong>15축 성향 벡터</strong>가 되고,<br>
-            그 벡터가 <strong>실제 매칭</strong>으로 이어진다.
+            프로필 쓰다 지치고, 설문 결과는 안 와닿고, 감으로 고른 상대는 3일 만에 흐지부지.<br>
+            그래서 <strong>그냥 연애를 시켜보기로</strong> 했다.<br>
+            첫만남부터 결말까지 — 플레이하는 사이에 당신의 <strong>진짜 연애 성향</strong>이 드러나고, 그게 곧 <strong>매칭</strong>이 된다.
         </p>
     </div>
 
@@ -496,13 +496,13 @@
 
     <!-- ══ Features ════════════════════════════════════ -->
     <section id="features">
-        <h2 class="section-title gradient-text">왜 로그라이크인가</h2>
+        <h2 class="section-title gradient-text">왜 게임인가</h2>
 
         <div class="card-grid">
             <div class="card">
-                <div class="card-emoji">🎲</div>
-                <h3>매번 다른 경험</h3>
-                <p>같은 시나리오라도 GPT가 유저마다 다른 상황, 다른 선택지를 생성합니다. 반복 플레이할수록 정밀해지는 매칭.</p>
+                <div class="card-emoji">😴</div>
+                <h3>프로필 작성은 지루하다</h3>
+                <p>설문지, 성향 체크, 자기소개 — 번거롭고 지루한 초기 세팅. 게임에 몰입하면 어느새 그 세팅이 끝나 있습니다.</p>
             </div>
             <div class="card">
                 <div class="card-emoji">🎭</div>
@@ -510,9 +510,9 @@
                 <p>좋고 나쁨이 아닌, 방향이 다를 뿐. 적극적/회피적/관망 — 어떤 선택이든 당신의 진짜 성향을 드러냅니다.</p>
             </div>
             <div class="card">
-                <div class="card-emoji">🔬</div>
-                <h3>과학적 측정</h3>
-                <p>행동 성향 10축 + Big Five 성격 5축. 총 15개 차원의 벡터로 당신을 정밀하게 분석합니다.</p>
+                <div class="card-emoji">🎲</div>
+                <h3>매번 다른 경험</h3>
+                <p>GPT가 유저마다 다른 상황, 다른 선택지를 생성합니다. 같은 스테이지라도 완전히 다른 이야기.</p>
             </div>
         </div>
     </section>
@@ -554,112 +554,62 @@
     <!-- ══ Scenario Framework ═════════════════════════ -->
     <section id="scenarios">
         <h2 class="section-title gradient-text">시나리오 프레임워크</h2>
-        <p class="text-center text-muted">3단계 뎁스 — 톤 → 상황 카테고리 → GPT 생성 이벤트</p>
+        <p class="text-center text-muted">6스테이지 관계 흐름 + 난입 이벤트 — GPT가 매번 다른 서사를 생성</p>
 
         <div class="scenario-section">
-            <h3>💗 긍정 시나리오</h3>
+            <h3>📖 관계 스테이지</h3>
             <div class="scenario-grid">
                 <div class="scenario-item positive">
-                    <div class="scenario-name">첫 인상</div>
-                    <div class="scenario-desc">처음 만난 순간의 반응</div>
-                    <div class="scenario-axes">pace · extraversion</div>
+                    <div class="scenario-name">1. 첫만남</div>
+                    <div class="scenario-desc">설렘, 첫인상, 어색함</div>
+                    <div class="scenario-axes">pace · extraversion · openness</div>
                 </div>
                 <div class="scenario-item positive">
-                    <div class="scenario-name">관심 표현</div>
-                    <div class="scenario-desc">호감을 어떻게 드러내는가</div>
-                    <div class="scenario-axes">affection · contact_frequency</div>
+                    <div class="scenario-name">2. 데이트</div>
+                    <div class="scenario-desc">알아가기, 관심 표현, 거리 좁히기</div>
+                    <div class="scenario-axes">humor · cooperation · affection</div>
                 </div>
                 <div class="scenario-item positive">
-                    <div class="scenario-name">깊은 대화</div>
-                    <div class="scenario-desc">감정을 나누는 순간</div>
-                    <div class="scenario-axes">emotional_depth · openness</div>
+                    <div class="scenario-name">3. 썸</div>
+                    <div class="scenario-desc">감정 확인, 밀당, 호감도에 따라 분기</div>
+                    <div class="scenario-axes">emotional_depth · affection · contact_frequency</div>
+                </div>
+                <div class="scenario-item negative">
+                    <div class="scenario-name">4. 관계 정의</div>
+                    <div class="scenario-desc">고백/확인 또는 정리</div>
+                    <div class="scenario-axes">risk · pace · planning</div>
+                </div>
+                <div class="scenario-item negative">
+                    <div class="scenario-name">5. 갈등</div>
+                    <div class="scenario-desc">현실적 충돌, 의견 차이</div>
+                    <div class="scenario-axes">cooperation · agreeableness · neuroticism</div>
                 </div>
                 <div class="scenario-item positive">
-                    <div class="scenario-name">함께하는 시간</div>
-                    <div class="scenario-desc">데이트 중 선택</div>
-                    <div class="scenario-axes">humor · cooperation</div>
-                </div>
-                <div class="scenario-item positive">
-                    <div class="scenario-name">미래 이야기</div>
-                    <div class="scenario-desc">관계의 다음 단계</div>
-                    <div class="scenario-axes">planning · conscientiousness</div>
-                </div>
-                <div class="scenario-item positive">
-                    <div class="scenario-name">서프라이즈</div>
-                    <div class="scenario-desc">상대를 위한 행동</div>
-                    <div class="scenario-axes">affection · agreeableness</div>
+                    <div class="scenario-name">6. 결말</div>
+                    <div class="scenario-desc">사귐, 친구, 거절 — 호감도 기반 엔딩</div>
+                    <div class="scenario-axes">planning · conscientiousness · emotional_depth</div>
                 </div>
             </div>
         </div>
 
         <div class="scenario-section">
-            <h3>💔 부정 시나리오</h3>
-            <div class="scenario-grid">
-                <div class="scenario-item negative">
-                    <div class="scenario-name">연락 두절</div>
-                    <div class="scenario-desc">갑자기 답이 없다</div>
-                    <div class="scenario-axes">jealousy · neuroticism</div>
-                </div>
-                <div class="scenario-item negative">
-                    <div class="scenario-name">의견 충돌</div>
-                    <div class="scenario-desc">서로 다른 생각</div>
-                    <div class="scenario-axes">cooperation · agreeableness</div>
-                </div>
-                <div class="scenario-item negative">
-                    <div class="scenario-name">질투 상황</div>
-                    <div class="scenario-desc">다른 이성의 등장</div>
-                    <div class="scenario-axes">jealousy · neuroticism</div>
-                </div>
-                <div class="scenario-item negative">
-                    <div class="scenario-name">실망 순간</div>
-                    <div class="scenario-desc">기대와 다른 모습 발견</div>
-                    <div class="scenario-axes">emotional_depth · conscientiousness</div>
-                </div>
-                <div class="scenario-item negative">
-                    <div class="scenario-name">거리감</div>
-                    <div class="scenario-desc">상대가 한 발 물러섬</div>
-                    <div class="scenario-axes">pace · contact_frequency</div>
-                </div>
-                <div class="scenario-item negative">
-                    <div class="scenario-name">과거 등장</div>
-                    <div class="scenario-desc">전 애인 관련 상황</div>
-                    <div class="scenario-axes">risk · neuroticism</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="scenario-section">
-            <h3>⚡ 돌발 시나리오</h3>
+            <h3>⚡ 난입 이벤트</h3>
+            <p class="text-muted" style="margin-bottom: 12px;">썸·관계 정의 스테이지에서 발생 — 호감도가 낮으면 확정, 높아도 25% 확률로 출현</p>
             <div class="scenario-grid">
                 <div class="scenario-item wildcard">
-                    <div class="scenario-name">우연한 재회</div>
-                    <div class="scenario-desc">예상 못한 곳에서 마주침</div>
-                    <div class="scenario-axes">extraversion · pace</div>
+                    <div class="scenario-name">제3자 등장</div>
+                    <div class="scenario-desc">다른 이성이 끼어드는 상황</div>
+                    <div class="scenario-axes">jealousy · neuroticism</div>
                 </div>
                 <div class="scenario-item wildcard">
-                    <div class="scenario-name">제3자 개입</div>
-                    <div class="scenario-desc">친구/가족의 의견</div>
-                    <div class="scenario-axes">leadership · agreeableness</div>
-                </div>
-                <div class="scenario-item wildcard">
-                    <div class="scenario-name">돌발 고백</div>
-                    <div class="scenario-desc">예상보다 빠른 감정 표현</div>
-                    <div class="scenario-axes">risk · pace</div>
-                </div>
-                <div class="scenario-item wildcard">
-                    <div class="scenario-name">환경 변화</div>
-                    <div class="scenario-desc">이사/이직 등 외부 변수</div>
-                    <div class="scenario-axes">planning · openness</div>
-                </div>
-                <div class="scenario-item wildcard">
-                    <div class="scenario-name">오해 발생</div>
+                    <div class="scenario-name">오해 · 갈등</div>
                     <div class="scenario-desc">의도와 다르게 전달된 상황</div>
                     <div class="scenario-axes">cooperation · emotional_depth</div>
                 </div>
                 <div class="scenario-item wildcard">
-                    <div class="scenario-name">시험대</div>
-                    <div class="scenario-desc">관계를 증명해야 하는 순간</div>
-                    <div class="scenario-axes">risk · leadership</div>
+                    <div class="scenario-name">외부 변수</div>
+                    <div class="scenario-desc">환경 변화, 예상 못한 사건</div>
+                    <div class="scenario-axes">planning · openness · risk</div>
                 </div>
             </div>
         </div>
@@ -667,32 +617,28 @@
 
     <!-- ══ Event Structure ════════════════════════════ -->
     <section id="event-structure">
-        <h2 class="section-title gradient-text">이벤트 2턴 구조</h2>
-        <p class="text-center text-muted" style="margin-bottom: 8px;">1턴 = 행동의 방향 · 2턴 = 표현의 방식</p>
+        <h2 class="section-title gradient-text">이벤트 흐름</h2>
+        <p class="text-center text-muted" style="margin-bottom: 8px;">첫만남부터 최종 선택까지 — 몰입형 연애 서사</p>
 
         <div class="event-flow">
             <div class="event-step gradient-bg-soft">
-                <strong>감정 태그</strong> — 상황 제시 전, 유저의 첫 감정 선택
-            </div>
-            <div class="event-arrow">↓</div>
-            <div class="event-step">
-                <strong>상황 묘사</strong> — 감각적 서사로 장면을 보여준다
+                <strong>첫만남</strong> — 상대와의 첫 인상, 분위기 형성
             </div>
             <div class="event-arrow">↓</div>
             <div class="event-step" style="border-left: 4px solid #7c3aed;">
-                <strong>[1턴]</strong> 행동 방향 선택 — 다가간다 / 피한다 / 지켜본다
+                <strong>전개</strong> — 관계가 깊어지는 상황 속 선택
             </div>
             <div class="event-arrow">↓</div>
-            <div class="event-step">
-                <strong>상황 전개</strong> — 1턴 선택에 따라 완전히 다른 전개
+            <div class="event-step" style="border-left: 4px solid #f97316;">
+                <strong>난입</strong> — 예상치 못한 돌발 이벤트가 관계를 흔든다
             </div>
             <div class="event-arrow">↓</div>
             <div class="event-step" style="border-left: 4px solid #ec4899;">
-                <strong>[2턴]</strong> 표현 방식 선택 — 진지하게 / 장난스럽게 / 차갑게
+                <strong>호감도 선택</strong> — 상대에 대한 감정을 직접 표현
             </div>
             <div class="event-arrow">↓</div>
             <div class="event-step gradient-bg-soft">
-                <strong>Trait 벡터 업데이트</strong> — 감정태그 + 1턴 + 2턴 종합 반영
+                <strong>최종 선택</strong> — 관계의 결말을 결정하는 마지막 선택
             </div>
         </div>
     </section>
@@ -704,7 +650,7 @@
         <table class="arch-table">
             <tr>
                 <td>🎮 Love Run</td>
-                <td>로그라이크 연애 시뮬레이션 — 6이벤트 + 보스(5%) 랜덤 구성</td>
+                <td>연애 시뮬레이션 — 썸·발전·결말 흐름 + 난입 이벤트, 몰입 체험 후 성향 해설</td>
             </tr>
             <tr>
                 <td>🧠 GPT Engine</td>
@@ -732,15 +678,15 @@
         <div class="diff-grid">
             <div class="diff-card old">
                 <h4>기존 매칭 앱</h4>
-                <p>사진 + 프로필 스펙<br>기반 스와이프</p>
+                <p>스펙·사진 기반 스와이프<br>실제 성격은 만나봐야 앎</p>
             </div>
             <div class="diff-card old">
                 <h4>심리 테스트 앱</h4>
-                <p>설문 → 유형 분류<br>→ 끝</p>
+                <p>설문 → 유형 카드 → 끝<br>매칭도, 후속 경험도 없음</p>
             </div>
             <div class="diff-card ours">
                 <h4>💜 러브로그</h4>
-                <p>플레이 → 성향 벡터<br>→ 심리 모델 보정<br>→ 수학적 매칭</p>
+                <p>썸→발전→결말 몰입 체험<br>→ 성향 해설 + 매칭<br>→ 협력 플레이로 친밀도 강화</p>
             </div>
         </div>
     </section>
@@ -750,7 +696,7 @@
         <h2 class="section-title gradient-text">Demo</h2>
         <div class="text-center" style="padding: 48px 0;">
             <p class="text-muted" style="font-size: 16px; margin-bottom: 24px;">Gradio 기반 프로토타입으로 직접 플레이해보세요.</p>
-            <a href="https://huggingface.co/spaces/mingming2323/rouge-like-heart-log" target="_blank" rel="noreferrer" class="gradient-bg" style="display: inline-flex; align-items: center; gap: 8px; padding: 14px 32px; color: #fff; font-size: 18px; font-weight: 700; border-radius: 50px; box-shadow: 0 0 6px rgba(0,0,0,0.3); transition: all 0.2s ease;">
+            <a href="https://huggingface.co/spaces/LoveLog/rouge-like-matcing-LOVElog" target="_blank" rel="noreferrer" class="gradient-bg" style="display: inline-flex; align-items: center; gap: 8px; padding: 14px 32px; color: #fff; font-size: 18px; font-weight: 700; border-radius: 50px; box-shadow: 0 0 6px rgba(0,0,0,0.3); transition: all 0.2s ease;">
                 🎮 Love Run 시작하기
             </a>
         </div>
@@ -770,33 +716,37 @@
                     등급별 매칭 가중치 · 프로필 뱃지 · 해금 요소 차별화
                 </p>
             </div>
-            <div class="card" style="border-left: 4px solid #ec4899;">
-                <div class="card-emoji">🔄</div>
-                <h3>반대 성향 매칭 (선택사항)</h3>
-                <p>
-                    유사 성향 매칭 외에, 보완형 매칭 옵션 제공<br>
-                    유저가 직접 "닮은 사람 vs 반대 성향" 선택 가능<br>
-                    Big Five 반전 벡터 기반 궁합 알고리즘
-                </p>
-            </div>
             <div class="card" style="border-left: 4px solid #ef4444;">
-                <div class="card-emoji">👹</div>
-                <h3>보스 이벤트</h3>
+                <div class="card-emoji">💑</div>
+                <h3>협력 플레이 이벤트</h3>
                 <p>
-                    런 마지막에 등장하는 고난도 시나리오<br>
-                    <strong>극단적 선택지</strong>로 성향 벡터 대폭 변동<br>
-                    5% 확률 랜덤 출현 · 클리어 시 특별 뱃지 지급
+                    매칭된 상대와 함께하는 협력 플레이<br>
+                    공동 선택을 통해 <strong>친밀도를 강화</strong>하는 이벤트 제공
                 </p>
             </div>
             <div class="card" style="border-left: 4px solid #f97316;">
-                <div class="card-emoji">🎥</div>
-                <h3>데모 영상 제작</h3>
-                <p>Love Run 플레이 → 매칭 결과까지 전체 플로우 시연 영상</p>
+                <div class="card-emoji">⚡</div>
+                <h3>돌발 레이드 로맨스</h3>
+                <p>
+                    난입 이벤트에서 만난 <strong>동료</strong>와의 우연한 로맨스<br>
+                    매칭 외 경로로 새로운 인연이 시작되는 서브 루트
+                </p>
+            </div>
+            <div class="card" style="border-left: 4px solid #ec4899;">
+                <div class="card-emoji">🤝</div>
+                <h3>동료 추천 매칭</h3>
+                <p>
+                    함께 플레이한 동료가 <strong>"너한테 맞는 사람"</strong>을 추천<br>
+                    나를 잘 아는 사람의 시선으로 이어지는 매칭
+                </p>
             </div>
             <div class="card" style="border-left: 4px solid #16a34a;">
-                <div class="card-emoji">📄</div>
-                <h3>설계 문서 공개</h3>
-                <p>아키텍처 · 매칭 알고리즘 · 프롬프트 설계 등 기술 문서 정리</p>
+                <div class="card-emoji">🎮</div>
+                <h3>RPG 요소 × 소개팅</h3>
+                <p>
+                    장비 = 대화 스킬, 파티 = 소개팅 그룹, 던전 = 데이트 코스<br>
+                    로그라이크 메커니즘이 곧 <strong>매칭 시스템</strong>이 되는 구조
+                </p>
             </div>
         </div>
     </section>
@@ -807,7 +757,7 @@
 
 <!-- ══ Bottom Bar ══════════════════════════════════ -->
 <div id="bottombar" class="gradient-bg">
-    <span>💜 러브로그 LoveLog</span>
+    <a href="https://huggingface.co/spaces/LoveLog/rouge-like-matcing-LOVElog" target="_blank" rel="noreferrer" style="color: #fff; text-decoration: none;">💜 러브로그 LoveLog</a>
     <div class="divider"></div>
     <a href="https://github.com/inyeon-log-gyeol">GitHub</a>
     <div class="divider"></div>
